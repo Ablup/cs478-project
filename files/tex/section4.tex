@@ -1,0 +1,26 @@
+When you need to add an equation, you should use:
+\begin{equation}
+   x=y
+\label{eq:ex}
+\end{equation}
+and then reference to the equation in the text using Equation~\eqref{eq:ex}.
+
+When you need to include a table, you should use:
+\begin{table}[ht]
+\centering % centering table
+\caption{\small Table title goes here} %title of the table
+\begin{tabular}{c rrrr} % creating eight columns
+\hline %inserting double-line
+  & A & B & C\\
+\hline % inserts single-line
+One & 3409 & 42.3m & 50\\ % Entering row contents
+Two & 1042 & 136.8m & 25\\
+Three & 1004 & 150.8m & 25\\ % [1ex] adds vertical space
+\hline % inserts single-line
+Total & 6097 & 212.5m & 130\\
+\hline % inserts single-line
+\end{tabular}
+\label{tab:hresult}
+\end{table}
+
+and then reference the table using Table~\ref{tab:hresult}.

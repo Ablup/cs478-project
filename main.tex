@@ -1,0 +1,145 @@
+\documentclass[10pt,letterpaper]{IEEEtran}
+%\usepackage{citesort}
+\usepackage{color}
+\usepackage{url}
+\usepackage[latin9]{inputenc}
+\usepackage{epstopdf}
+\usepackage{amsthm}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{subfigure}
+\usepackage{wrapfig}
+\usepackage{algorithmic}
+\usepackage{algorithm}
+\usepackage{mathrsfs}
+\usepackage{float}
+\usepackage{mathtools}
+\usepackage{tabulary}
+\usepackage{booktabs}
+\usepackage{caption}
+
+\PassOptionsToPackage{bookmarks={false}}{hyperref}
+
+\IEEEoverridecommandlockouts
+%\usepackage{cite}
+%\usepackage{amsmath,amssymb,amsfonts}
+%\usepackage{algorithmic}
+%\usepackage{graphicx}
+%\usepackage{epstopdf}
+%\usepackage{textcomp}
+%\usepackage{xcolor}
+%\usepackage{url}
+%\usepackage{subcaption}
+%\usepackage{subfigure}
+
+\setlength{\topmargin}{-0.5in} \setlength{\headheight}{0in} \setlength{\headsep}{0in}
+\setlength{\textheight}{9.6in}
+
+\setlength{\oddsidemargin}{-0.375in}
+\setlength{\evensidemargin}{-0.375in}
+\setlength{\textwidth}{7.0in}
+
+
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+   T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+
+%\usepackage[ruled,vlined]{algorithm2e}
+%\include{pythonlisting}
+%\renewcommand{\algorithmicrequire}{\textbf{Input:}}
+
+%\renewcommand{\algorithmicensure}{\textbf{Output:}}
+
+\newcommand{\N}{\mathbb{N}}
+
+
+
+\newcommand{\protocol}{{\tt{HybridCache}}}
+\newcommand{\comment}[1]{ }
+
+\DeclareMathOperator*{\argmin}{argmin}
+\captionsetup[table]{
+  labelsep=newline,
+  justification=centering,
+  singlelinecheck=false,
+}
+
+\newcommand\subparagraph{%
+  \@startsection{subparagraph}{0}
+  {\parindent}
+  {0ex \@plus 0ex \@minus 0ex}
+  {-1em}
+  {\normalfont\normalsize\bfseries}}
+\makeatother
+
+\usepackage{titlesec}
+\titlespacing*{\section}
+{0pt}{1.2ex}{0ex} % indent; before subsec; after sub
+\titlespacing*{\subsection}
+{0pt}{1ex}{0ex}  % indent; before subsec; after sub
+\titlespacing*{\subsubsection}
+{0pt}{0ex}{0ex} % indent; before subsec; after sub
+
+\begin{document}
+
+
+\title{The Title of Your Project}
+
+\author{ECE/CS 478 Class Project~\\
+Author 1's Name, Author 2's Name, Author 3's Name~\\
+\small Oregon State University, Corvallis, OR, USA, {author1,author2,author3}@oregonstate.edu \\
+}
+
+\maketitle
+\thispagestyle{plain}
+\pagestyle{plain}
+
+%\begin{abstract}
+%\input{files/tex/Abstract}
+%\end{abstract}
+
+%\begin{IEEEkeywords}
+%Index term 1, index term 2, etc.
+%\end{IEEEkeywords}
+
+\section{Introduction}
+\input{files/tex/Introduction}
+
+\section{Background}
+\label{sec:background}
+\input{files/tex/Background}
+
+
+\section{Your next Section}
+\label{sec:xxx}
+\input{files/tex/section2}
+
+\section{Your next next Section}
+\label{sec:xxxx}
+\input{files/tex/section3}
+
+\section{Your third next Section (if needed)}
+\label{sec:xxxxxx}
+\input{files/tex/section4}
+
+\section{Your fourth next section (if needed)}
+\label{sec:evaluation}
+\input{files/tex/Evaluation}
+
+
+\section{Conclusion}
+\label{sec:conclusion}
+\input{files/tex/Conclusion}
+
+\section{Individual Contributions}
+\label{sec:contributions}
+\input{files/tex/Contribution}
+
+
+\bibliographystyle{IEEEtran}
+\bibliography{References}
+%\bibliographystyle{main}
+
+
+\end{document}
