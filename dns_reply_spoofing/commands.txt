@@ -6,7 +6,7 @@ victim:
   docker compose exec victim tcpdump -vv -n port 53
 
 attacker:
-  python3 attack.py
+  docker compose exec attacker python3 attack.py
 
 victim:
   docker compose exec victim dig test.site
