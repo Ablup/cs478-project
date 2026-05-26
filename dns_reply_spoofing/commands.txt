@@ -1,0 +1,12 @@
+dns:
+  docker compose exec dns sh -c "apk update && apk add iproute2"
+  docker compose exec dns tc qdisc add dev eth0 root netem delay 100ms
+
+victim:
+  docker compose exec victim tcpdump -vv -n port 53
+
+attacker:
+  python3 attack.py
+
+victim:
+  docker compose exec victim dig test.site

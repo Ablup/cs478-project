@@ -1,0 +1,42 @@
+services:
+  dns:
+    restart: always
+    image: strm/dnsmasq
+    volumes:
+      - ./dnsmasq.conf:/etc/dnsmasq.conf 
+    cap_add:
+      - NET_ADMIN
+    networks:
+      dns_net:
+        ipv4_address: 10.0.0.5
+  
+  victim:
+    container_name: "victim"
+    image: alpine:latest
+    tty: true
+    depends_on:
+      - dns
+    networks:
+      - dns_net
+    command: sh -c "echo 'nameserver 10.0.0.5' > /etc/resolv.conf && apk update && apk add bind-tools tcpdump && exec sh"
+
+  attacker:
+    build:
+      context: .
+      dockerfile: Dockerfile.attacker
+    tty: true
+    stdin_open: true
+    network_mode: "host"
+    depends_on:
+      - dns
+      - victim
+    cap_add:
+      - NET_ADMIN
+    volumes:
+    - ./attack.py:/attack.py
+
+networks:
+  dns_net:
+    ipam:
+      config:
+        - subnet: 10.0.0.0/24
