@@ -6,7 +6,6 @@ net_interface = next((iface for iface in conf.ifaces.values() if iface.name.star
 packet_filter = " and ".join([
     "udp dst port 53",          # Filter UDP port 53
     "udp[10] & 0x80 = 0"        # DNS queries only
-    #"src host 192.168.86.25"     IP source <ip>
     ])
 
 def dns_reply(packet):

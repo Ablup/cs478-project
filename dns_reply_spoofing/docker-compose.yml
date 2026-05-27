@@ -24,7 +24,6 @@ services:
       context: .
       dockerfile: Dockerfile.attacker
     tty: true
-    stdin_open: true
     network_mode: "host"
     depends_on:
       - dns
