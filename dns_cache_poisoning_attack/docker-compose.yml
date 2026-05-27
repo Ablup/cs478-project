@@ -1,0 +1,64 @@
+version: "3.8"
+
+services:
+  # ---------------------------------------------------------
+  # 1. The Local DNS Server (Target)
+  # ---------------------------------------------------------
+  dns-server:
+    image: ubuntu:22.04
+    container_name: local-dns-server
+    tty: true
+    cap_add:
+      - NET_ADMIN
+    networks:
+      dns-net:
+        ipv4_address: 10.9.0.53
+    # Configures BIND9 to forward exclusively to an unreachable IP,
+    # stretching the socket processing window to 5000ms for testing.
+    command: >
+      bash -c "DEBIAN_FRONTEND=noninteractive apt-get update && 
+      DEBIAN_FRONTEND=noninteractive apt-get install -y -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold' bind9 bind9utils dnsutils tcpdump && 
+      echo 'options { directory \"/var/cache/bind\"; forwarders { 10.9.0.254; }; forward only; listen-on { any; }; allow-query { any; }; recursion yes; dnssec-validation no; };' > /etc/bind/named.conf.options && 
+      named -g"
+
+  # ---------------------------------------------------------
+  # 2. The Victim Node (Client)
+  # ---------------------------------------------------------
+  victim:
+    image: ubuntu:22.04
+    container_name: victim-node
+    tty: true
+    networks:
+      dns-net:
+        ipv4_address: 10.9.0.5
+    # Force the client container to route all DNS operations through our target server
+    command: >
+      bash -c "DEBIAN_FRONTEND=noninteractive apt-get update && 
+      DEBIAN_FRONTEND=noninteractive apt-get install -y dnsutils iputils-ping && 
+      echo 'nameserver 10.9.0.53' > /etc/resolv.conf && 
+      tail -f /dev/null"
+
+  # ---------------------------------------------------------
+  # 3. The Attacker Node (Injection Engine)
+  # ---------------------------------------------------------
+  attacker:
+    image: ubuntu:22.04
+    container_name: attacker-node
+    tty: true
+    cap_add:
+      - NET_ADMIN
+    # Bypasses bridge isolation to capture and inspect the host kernel's packet streams
+    network_mode: "host"
+    command: >
+      bash -c "DEBIAN_FRONTEND=noninteractive apt-get update && 
+      DEBIAN_FRONTEND=noninteractive apt-get install -y python3 python3-pip python3-scapy tcpdump nano && 
+      tail -f /dev/null"
+
+networks:
+  dns-net:
+    name: dns-net
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.9.0.0/24
+          gateway: 10.9.0.1
