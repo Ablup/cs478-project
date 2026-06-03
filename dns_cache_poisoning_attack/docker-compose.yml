@@ -13,13 +13,15 @@ services:
     networks:
       dns-net:
         ipv4_address: 10.9.0.53
-    # Configures BIND9 to forward exclusively to an unreachable IP,
-    # stretching the socket processing window to 5000ms for testing.
+    # Automatically updates apt, installs dnsmasq + dnsutils, and starts dnsmasq in the foreground
     command: >
       bash -c "DEBIAN_FRONTEND=noninteractive apt-get update && 
-      DEBIAN_FRONTEND=noninteractive apt-get install -y -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold' bind9 bind9utils dnsutils tcpdump && 
-      echo 'options { directory \"/var/cache/bind\"; forwarders { 10.9.0.254; }; forward only; listen-on { any; }; allow-query { any; }; recursion yes; dnssec-validation no; };' > /etc/bind/named.conf.options && 
-      named -g"
+      DEBIAN_FRONTEND=noninteractive apt-get install -y dnsmasq dnsutils tcpdump net-tools && 
+      echo 'user=root' > /etc/dnsmasq.conf &&
+      echo 'no-resolv' >> /etc/dnsmasq.conf &&
+      echo 'server=10.9.0.254' >> /etc/dnsmasq.conf &&
+      echo 'log-queries' >> /etc/dnsmasq.conf &&
+      dnsmasq -k --no-resolv --server=/#/10.9.0.254"
 
   # ---------------------------------------------------------
   # 2. The Victim Node (Client)
@@ -31,7 +33,7 @@ services:
     networks:
       dns-net:
         ipv4_address: 10.9.0.5
-    # Force the client container to route all DNS operations through our target server
+    # Automatically installs utilities and points the resolver to our target DNS container
     command: >
       bash -c "DEBIAN_FRONTEND=noninteractive apt-get update && 
       DEBIAN_FRONTEND=noninteractive apt-get install -y dnsutils iputils-ping && 
@@ -39,19 +41,26 @@ services:
       tail -f /dev/null"
 
   # ---------------------------------------------------------
-  # 3. The Attacker Node (Injection Engine)
+  # 3. The Attacker Node
+  # If using wsl for the containers you need to add a secondary ip address 
+  # for the upstream internet gateway. This is so the attack container is able "sniff" 
+  # the traffic, and correctly stage the cache poisoning attack. 
+  # Command I used inside the attack container: ip addr add 10.9.0.254/24 dev eth0
   # ---------------------------------------------------------
   attacker:
     image: ubuntu:22.04
     container_name: attacker-node
     tty: true
     cap_add:
-      - NET_ADMIN
-    # Bypasses bridge isolation to capture and inspect the host kernel's packet streams
-    network_mode: "host"
+      - NET_ADMIN  # Allows Scapy to interact with raw network sockets
+    networks:
+      dns-net:
+        ipv4_address: 10.9.0.100
+    volumes:
+      - .:/app      #for the attack script.
     command: >
       bash -c "DEBIAN_FRONTEND=noninteractive apt-get update && 
-      DEBIAN_FRONTEND=noninteractive apt-get install -y python3 python3-pip python3-scapy tcpdump nano && 
+      DEBIAN_FRONTEND=noninteractive apt-get install -y python3 python3-pip python3-scapy tcpdump nano net-tools && 
       tail -f /dev/null"
 
 networks:

